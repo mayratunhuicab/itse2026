@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { TrendingUp, Wallet, Tag, Clock, Search, Filter } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { TrendingUp, Wallet, Tag, Clock, Search, Filter, PieChart as PieIcon } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import ModuleTemplate from '../../components/ModuleTemplate';
 
 const fields = [
@@ -8,6 +9,8 @@ const fields = [
   { name: 'fecha', label: '📅 Fecha', type: 'date', required: true },
   { name: 'categoria', label: '🏷️ Categoría', type: 'select', options: ['Alimentación', 'Transporte', 'Material Escolar', 'Libros', 'Otro'], required: true },
 ];
+
+const COLORS = ['#6366f1', '#10b981', '#8b5cf6', '#3b82f6', '#f59e0b', '#ec4899'];
 
 function RegistroDeGastos() {
   const [timeFilter, setTimeFilter] = useState('Todos');
@@ -50,8 +53,8 @@ function RegistroDeGastos() {
               key={f}
               onClick={() => setTimeFilter(f)}
               className={`flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${timeFilter === f
-                  ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
                 }`}
             >
               {f}
@@ -94,20 +97,32 @@ function RegistroDeGastos() {
   );
 
   const renderSummary = (items) => {
+    // Procesamiento de datos para la gráfica
+    const chartData = useMemo(() => {
+      const groups = items.reduce((acc, item) => {
+        const cat = item.content.categoria || 'Otro';
+        const monto = Number(item.content.monto || 0);
+        acc[cat] = (acc[cat] || 0) + monto;
+        return acc;
+      }, {});
+
+      return Object.entries(groups).map(([name, value]) => ({ name, value }));
+    }, [items]);
+
     const totalHoy = items
       .filter(i => new Date(i.created_at).toDateString() === new Date().toDateString())
       .reduce((acc, curr) => acc + Number(curr.content.monto || 0), 0);
     const totalMes = items.reduce((acc, curr) => acc + Number(curr.content.monto || 0), 0);
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-6 text-white shadow-xl shadow-blue-200 relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
+          <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform text-white">
             <TrendingUp size={120} />
           </div>
           <div className="relative z-10">
             <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Inversión Hoy</p>
-            <h3 className="text-3xl font-black">${totalHoy.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</h3>
+            <h3 className="text-3xl font-black text-white">${totalHoy.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</h3>
             <div className="mt-4 flex items-center gap-2 text-[10px] bg-white/20 w-fit px-2 py-1 rounded-full backdrop-blur-sm">
               <Clock size={12} />
               <span>Sincronizado</span>
@@ -129,12 +144,52 @@ function RegistroDeGastos() {
           <div className="w-14 h-14 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center shadow-inner">
             <Tag size={28} />
           </div>
-          <div>
+          <div className="overflow-hidden">
             <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Último Gasto</p>
-            <h3 className="text-xl font-bold text-slate-700 truncate max-w-[150px]">
+            <h3 className="text-xl font-bold text-slate-700 truncate">
               {items[0]?.content.concepto || 'Sin registros'}
             </h3>
           </div>
+        </div>
+
+        <div className="bg-white border border-slate-100 rounded-3xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col items-center">
+          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2 self-start flex items-center gap-2">
+            <PieIcon size={14} className="text-blue-500" />
+            Distribución
+          </p>
+          <div className="w-full h-32">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={30}
+                  outerRadius={50}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value) => `$${Number(value).toLocaleString()}`}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          {chartData.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-1">
+              {chartData.slice(0, 3).map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <span className="text-[9px] font-medium text-slate-500">{entry.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
