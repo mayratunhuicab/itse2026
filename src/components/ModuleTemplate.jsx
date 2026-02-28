@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { ArrowLeft, Plus, Edit, Trash2, Save, X, AlertCircle, CheckCircle } from 'lucide-react';
 
-function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, formColumns = 1, gridColumns = 1, useModal = false }) {
+function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, customFilters, filterFn, formColumns = 1, gridColumns = 1, useModal = false }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -360,6 +360,13 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, formCo
           )
         )}
 
+        {/* ── Filtros Personalizados ── */}
+        {customFilters && (
+          <div className="mb-6">
+            {customFilters}
+          </div>
+        )}
+
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold">Lista de {moduleName}</h2>
@@ -381,7 +388,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, formCo
             </p>
           ) : (
             <div className={`grid grid-cols-1 md:grid-cols-${gridColumns} gap-6`}>
-              {items.map((item) => (
+              {(filterFn ? items.filter(filterFn) : items).map((item) => (
                 <div key={item.id} className="group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-50/50 transition-all duration-300 border-l-4 border-l-blue-500">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
