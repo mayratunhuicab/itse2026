@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { ArrowLeft, Plus, Edit, Trash2, Save, X, AlertCircle, CheckCircle } from 'lucide-react';
 
-function ModuleTemplate({ moduleName, moduleOwner, fields }) {
+function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, formColumns = 1, gridColumns = 1, useModal = false }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -132,7 +132,6 @@ function ModuleTemplate({ moduleName, moduleOwner, fields }) {
     setFormData({ ...formData, [fieldName]: value });
   };
 
-  // Detecta si el error es de RLS / permisos
   const isRLSError = errorMsg && (
     errorMsg.includes('row-level') ||
     errorMsg.includes('violates') ||
@@ -144,24 +143,28 @@ function ModuleTemplate({ moduleName, moduleOwner, fields }) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
+        {renderSummary && renderSummary(items)}
+
         <div className="mb-6">
-          <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+          <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al inicio
           </Link>
           <div className="flex justify-between items-center">
-            <h1 className="text-4xl font-bold text-gray-800">{moduleName}</h1>
+            <div className="space-y-1">
+              <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">{moduleName}</h1>
+              <p className="text-slate-500 text-sm">Gestiona tus registros de {moduleName.toLowerCase()} de forma eficiente</p>
+            </div>
             <button
               onClick={() => { setShowForm(!showForm); setEditingItem(null); setErrorMsg(null); }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+              className={`${useModal ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-5 py-2.5 rounded-xl flex items-center shadow-lg transition-all transform hover:scale-105 active:scale-95`}
             >
-              {showForm ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-              {showForm ? 'Cancelar' : 'Agregar Nuevo'}
+              {showForm && !useModal ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+              {showForm && !useModal ? 'Cancelar' : 'Agregar Nuevo'}
             </button>
           </div>
         </div>
 
-        {/* ── Banner de error ── */}
         {errorMsg && (
           <div className="mb-4 bg-red-50 border border-red-300 text-red-800 rounded-lg px-4 py-3">
             <div className="flex items-start gap-3">
@@ -173,10 +176,6 @@ function ModuleTemplate({ moduleName, moduleOwner, fields }) {
                   <div className="mt-3 text-sm bg-yellow-50 border border-yellow-200 rounded p-3 text-yellow-900">
                     <p className="font-semibold mb-1">💡 Solución — Row Level Security (RLS):</p>
                     <p>La tabla tiene RLS activado y bloquea operaciones sin autenticación. Ejecuta este SQL en tu panel de Supabase:</p>
-                    <pre className="mt-2 bg-gray-800 text-green-300 text-xs rounded p-2 overflow-x-auto">
-                      {`-- Supabase → SQL Editor → New Query
-ALTER TABLE student_modules DISABLE ROW LEVEL SECURITY;`}
-                    </pre>
                   </div>
                 )}
               </div>
@@ -187,7 +186,6 @@ ALTER TABLE student_modules DISABLE ROW LEVEL SECURITY;`}
           </div>
         )}
 
-        {/* ── Banner de éxito ── */}
         {successMsg && (
           <div className="mb-4 flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 rounded-lg px-4 py-3">
             <CheckCircle className="w-5 h-5 flex-shrink-0" />
@@ -195,85 +193,173 @@ ALTER TABLE student_modules DISABLE ROW LEVEL SECURITY;`}
           </div>
         )}
 
-        {/* ── Formulario ── */}
         {showForm && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-semibold mb-4">
-              {editingItem ? 'Editar' : 'Agregar Nuevo'} {moduleName}
-            </h2>
-            <form onSubmit={handleSubmit}>
-              {fields.map((field) => (
-                <div key={field.name} className="mb-4">
-                  <label className="block text-gray-700 font-medium mb-2">
-                    {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                  </label>
-                  {field.type === 'textarea' ? (
-                    <textarea
-                      value={formData[field.name] || ''}
-                      onChange={(e) => handleInputChange(field.name, e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows="4"
-                      required={field.required}
-                    />
-                  ) : field.type === 'select' ? (
-                    <select
-                      value={formData[field.name] || ''}
-                      onChange={(e) => handleInputChange(field.name, e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required={field.required}
-                    >
-                      <option value="">Seleccionar...</option>
-                      {field.options?.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type={field.type || 'text'}
-                      value={formData[field.name] || ''}
-                      onChange={(e) => handleInputChange(field.name, e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required={field.required}
-                    />
-                  )}
+          useModal ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"
+                onClick={resetForm}
+              />
+              <div className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 border border-slate-200">
+                <div className="bg-slate-50 px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-xl bg-emerald-100 text-emerald-600`}>
+                      {editingItem ? <Edit size={20} /> : <Plus size={20} />}
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-800">
+                        {editingItem ? 'Editar' : 'Nuevo'} {moduleName.slice(0, -1)}
+                      </h2>
+                      <p className="text-xs text-slate-500">Completa los campos para continuar</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={resetForm}
+                    className="p-2 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-full transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
                 </div>
-              ))}
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg flex items-center transition-colors"
-                >
-                  {saving ? (
-                    <>
-                      <svg className="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                      </svg>
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4 mr-2" />
-                      Guardar
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  disabled={saving}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
-                >
-                  Cancelar
-                </button>
+
+                <form onSubmit={handleSubmit} className="p-8">
+                  <div className={`grid grid-cols-1 md:grid-cols-${formColumns} gap-6 mb-8`}>
+                    {fields.map((field) => (
+                      <div key={field.name} className="flex flex-col space-y-2">
+                        <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                          {field.label}
+                          {field.required && <span className="text-emerald-500">*</span>}
+                        </label>
+                        {field.type === 'textarea' ? (
+                          <textarea
+                            value={formData[field.name] || ''}
+                            onChange={(e) => handleInputChange(field.name, e.target.value)}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500/30 transition-all bg-slate-50/50"
+                            rows="3"
+                            required={field.required}
+                          />
+                        ) : field.type === 'select' ? (
+                          <select
+                            value={formData[field.name] || ''}
+                            onChange={(e) => handleInputChange(field.name, e.target.value)}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500/30 transition-all bg-slate-50/50 appearance-none"
+                            required={field.required}
+                          >
+                            <option value="">Seleccionar...</option>
+                            {field.options?.map((option) => (
+                              <option key={option} value={option}>{option}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type={field.type || 'text'}
+                            value={formData[field.name] || ''}
+                            onChange={(e) => handleInputChange(field.name, e.target.value)}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500/30 transition-all bg-slate-50/50"
+                            required={field.required}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed text-white px-8 py-4 rounded-2xl flex items-center justify-center font-bold shadow-xl shadow-emerald-200 transition-all transform hover:-translate-y-0.5"
+                    >
+                      {saving ? (
+                        <>
+                          <svg className="animate-spin w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                          </svg>
+                          Guardando...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-5 h-5 mr-3" />
+                          {editingItem ? 'Actualizar Registro' : 'Crear Registro'}
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      disabled={saving}
+                      className="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold transition-all"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h2 className="text-2xl font-semibold mb-4">
+                {editingItem ? 'Editar' : 'Agregar Nuevo'} {moduleName}
+              </h2>
+              <form onSubmit={handleSubmit}>
+                {fields.map((field) => (
+                  <div key={field.name} className="mb-4">
+                    <label className="block text-gray-700 font-medium mb-2">
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        value={formData[field.name] || ''}
+                        onChange={(e) => handleInputChange(field.name, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows="4"
+                        required={field.required}
+                      />
+                    ) : field.type === 'select' ? (
+                      <select
+                        value={formData[field.name] || ''}
+                        onChange={(e) => handleInputChange(field.name, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required={field.required}
+                      >
+                        <option value="">Seleccionar...</option>
+                        {field.options?.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type || 'text'}
+                        value={formData[field.name] || ''}
+                        onChange={(e) => handleInputChange(field.name, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required={field.required}
+                      />
+                    )}
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg flex items-center transition-colors"
+                  >
+                    {saving ? 'Guardando...' : 'Guardar'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    disabled={saving}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          )
         )}
 
-        {/* ── Lista ── */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold">Lista de {moduleName}</h2>
@@ -286,11 +372,7 @@ ALTER TABLE student_modules DISABLE ROW LEVEL SECURITY;`}
           </div>
 
           {loading ? (
-            <div className="flex items-center gap-2 text-gray-500 py-4">
-              <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-              </svg>
+            <div className="flex items-center gap-2 text-gray-500 py-4 text-center justify-center">
               Cargando datos...
             </div>
           ) : items.length === 0 ? (
@@ -298,37 +380,43 @@ ALTER TABLE student_modules DISABLE ROW LEVEL SECURITY;`}
               No hay datos aún. Haz clic en "Agregar Nuevo" para empezar.
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className={`grid grid-cols-1 md:grid-cols-${gridColumns} gap-6`}>
               {items.map((item) => (
-                <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div key={item.id} className="group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-50/50 transition-all duration-300 border-l-4 border-l-blue-500">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      {fields.map((field) => (
-                        <div key={field.name} className="mb-2">
-                          <span className="font-medium text-gray-700">{field.label}: </span>
-                          <span className="text-gray-600">
-                            {item.content[field.name] || 'N/A'}
-                          </span>
-                        </div>
-                      ))}
-                      <div className="text-xs text-gray-400 mt-2">
-                        Creado: {new Date(item.created_at).toLocaleString('es-ES')}
+                      <div className="grid grid-cols-1 gap-3">
+                        {fields.map((field) => (
+                          <div key={field.name} className="flex flex-col">
+                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-tighter">{field.label}</span>
+                            <span className="text-gray-700 font-medium text-lg">
+                              {field.type === 'number' ?
+                                `$${Number(item.content[field.name]).toLocaleString('es-ES', { minimumFractionDigits: 2 })}` :
+                                (item.content[field.name] || '—')
+                              }
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-[10px] text-gray-400 mt-6 flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        Registrado el {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleEdit(item)}
-                        className="text-blue-600 hover:text-blue-800 p-2"
+                        className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2.5 rounded-xl transition-all"
                         title="Editar"
                       >
-                        <Edit className="w-5 h-5" />
+                        <Edit size={18} />
                       </button>
                       <button
                         onClick={() => deleteData(item.id)}
-                        className="text-red-600 hover:text-red-800 p-2"
+                        className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-all"
                         title="Eliminar"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
