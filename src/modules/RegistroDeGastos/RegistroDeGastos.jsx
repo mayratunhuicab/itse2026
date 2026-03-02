@@ -28,7 +28,7 @@ const CountUp = ({ value, duration = 800 }) => {
     window.requestAnimationFrame(step);
   }, [value]);
 
-  return <span>${displayValue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>;
+  return <span>${displayValue.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>;
 };
 
 const fields = [
@@ -243,7 +243,7 @@ function RegistroDeGastos() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value, name) => [`$${Number(value).toLocaleString('es-ES', { minimumFractionDigits: 2 })}`, `${CATEGORY_EMOJIS[name] || '💰'} ${name}`]}
+                  formatter={(value, name) => [`$${Number(value).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`, `${CATEGORY_EMOJIS[name] || '💰'} ${name}`]}
                   contentStyle={{
                     borderRadius: '20px',
                     border: '1px solid #334155',
@@ -265,7 +265,7 @@ function RegistroDeGastos() {
                   <div key={entry.name} className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 transition-all hover:scale-105 bg-white/5 backdrop-blur-sm" style={{ borderColor: `${color}40`, boxShadow: `0 0 10px ${color}15` }}>
                     <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px] shadow-current" style={{ backgroundColor: color, color: color }}></div>
                     <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: color, textShadow: `0 0 8px ${color}40` }}>
-                      {entry.name}: ${entry.value.toLocaleString('es-ES', { maximumFractionDigits: 0 })}
+                      {entry.name}: ${entry.value.toLocaleString('es-MX', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 );
@@ -295,6 +295,7 @@ function RegistroDeGastos() {
       formColumns={2}
       gridColumns={2}
       theme={darkTheme}
+      locale="es-MX"
     />
   );
 }
