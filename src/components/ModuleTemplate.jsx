@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { ArrowLeft, Plus, Edit, Trash2, Save, X, AlertCircle, CheckCircle } from 'lucide-react';
 
-function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, customFilters, filterFn, formColumns = 1, gridColumns = 1, useModal = false }) {
+function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, customFilters, filterFn, formColumns = 1, gridColumns = 1, useModal = false, layout = 'stacked' }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -115,6 +115,13 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validación de monto si existe en los campos
+    if (formData.monto !== undefined && Number(formData.monto) < 1) {
+      setErrorMsg('¡El monto debe ser mayor a 0! 💰');
+      return;
+    }
+
     if (editingItem) {
       updateData(editingItem.id, formData);
     } else {
@@ -143,7 +150,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        {renderSummary && renderSummary(items)}
+        {(renderSummary && layout !== 'sidebar') && renderSummary(items)}
 
         <div className="mb-6">
           <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors">
@@ -256,6 +263,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                             onChange={(e) => handleInputChange(field.name, e.target.value)}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500/30 transition-all bg-slate-50/50"
                             required={field.required}
+                            min={field.min}
                           />
                         )}
                       </div>
@@ -265,8 +273,8 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                   <div className="flex gap-4">
                     <button
                       type="submit"
-                      disabled={saving}
-                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed text-white px-8 py-4 rounded-2xl flex items-center justify-center font-bold shadow-xl shadow-emerald-200 transition-all transform hover:-translate-y-0.5"
+                      disabled={saving || (formData.monto !== undefined && Number(formData.monto) < 1)}
+                      className={`flex-1 flex items-center justify-center font-bold px-8 py-4 rounded-2xl transition-all transform hover:-translate-y-0.5 shadow-xl ${saving || (formData.monto !== undefined && Number(formData.monto) < 1) ? 'bg-slate-300 cursor-not-allowed shadow-none text-slate-500' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200 active:scale-95'}`}
                     >
                       {saving ? (
                         <>
@@ -367,76 +375,86 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold">Lista de {moduleName}</h2>
-            <button
-              onClick={fetchData}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              ↻ Recargar
-            </button>
+        <div className={layout === 'sidebar' ? 'flex flex-col lg:flex-row gap-8 items-start' : ''}>
+          <div className={layout === 'sidebar' ? 'flex-1 w-full order-2 lg:order-1' : ''}>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold">Lista de {moduleName}</h2>
+                <button
+                  onClick={fetchData}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  ↻ Recargar
+                </button>
+              </div>
+
+              {loading ? (
+                <div className="flex items-center gap-2 text-gray-500 py-4 text-center justify-center">
+                  Cargando datos...
+                </div>
+              ) : (filterFn ? items.filter(filterFn) : items).length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-4 animate-in fade-in slide-in-from-bottom-4">
+                  <span className="text-6xl filter grayscale opacity-50">📭</span>
+                  <div className="text-center">
+                    <p className="text-xl font-bold text-slate-600">Parece que aún no hay gastos hoy</p>
+                    <p className="text-sm">Intenta cambiar el filtro o agregar un nuevo registro</p>
+                  </div>
+                </div>
+              ) : (
+                <div className={`grid grid-cols-1 md:grid-cols-${gridColumns} gap-6`}>
+                  {(filterFn ? items.filter(filterFn) : items).map((item) => {
+                    const categoriaNormalizada = item.content.categoria?.toLowerCase().replace(/\s+/g, '-');
+                    return (
+                      <div key={item.id} className={`history-card card-cat-${categoriaNormalizada} group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-50/50 transition-all duration-300`}>
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="grid grid-cols-1 gap-3">
+                              {fields.map((field) => (
+                                <div key={field.name} className="flex flex-col">
+                                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-tighter">{field.label}</span>
+                                  <span className="text-gray-700 font-medium text-lg">
+                                    {field.type === 'number' ?
+                                      `$${Number(item.content[field.name]).toLocaleString('es-ES', { minimumFractionDigits: 2 })}` :
+                                      (item.content[field.name] || '—')
+                                    }
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="text-[10px] text-gray-400 mt-6 flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3 text-green-500" />
+                              Registrado el {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2.5 rounded-xl transition-all"
+                              title="Editar"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => deleteData(item.id)}
+                              className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-all"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
-          {loading ? (
-            <div className="flex items-center gap-2 text-gray-500 py-4 text-center justify-center">
-              Cargando datos...
-            </div>
-          ) : (filterFn ? items.filter(filterFn) : items).length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-4 animate-in fade-in slide-in-from-bottom-4">
-              <span className="text-6xl filter grayscale opacity-50">📭</span>
-              <div className="text-center">
-                <p className="text-xl font-bold text-slate-600">Parece que aún no hay gastos hoy</p>
-                <p className="text-sm">Intenta cambiar el filtro o agregar un nuevo registro</p>
-              </div>
-            </div>
-          ) : (
-            <div className={`grid grid-cols-1 md:grid-cols-${gridColumns} gap-6`}>
-              {(filterFn ? items.filter(filterFn) : items).map((item) => {
-                const categoriaNormalizada = item.content.categoria?.toLowerCase().replace(/\s+/g, '-');
-                return (
-                  <div key={item.id} className={`history-card card-cat-${categoriaNormalizada} group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-50/50 transition-all duration-300`}>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="grid grid-cols-1 gap-3">
-                          {fields.map((field) => (
-                            <div key={field.name} className="flex flex-col">
-                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-tighter">{field.label}</span>
-                              <span className="text-gray-700 font-medium text-lg">
-                                {field.type === 'number' ?
-                                  `$${Number(item.content[field.name]).toLocaleString('es-ES', { minimumFractionDigits: 2 })}` :
-                                  (item.content[field.name] || '—')
-                                }
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="text-[10px] text-gray-400 mt-6 flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3 text-green-500" />
-                          Registrado el {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => handleEdit(item)}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2.5 rounded-xl transition-all"
-                          title="Editar"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => deleteData(item.id)}
-                          className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-all"
-                          title="Eliminar"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          {layout === 'sidebar' && renderSummary && (
+            <aside className="lg:w-[320px] w-full space-y-6 sidebar-sticky order-1 lg:order-2 bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50 shadow-inner">
+              {renderSummary(items)}
+            </aside>
           )}
         </div>
       </div>

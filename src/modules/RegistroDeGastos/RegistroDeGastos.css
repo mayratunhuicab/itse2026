@@ -1,5 +1,29 @@
 /* RegistroDeGastos.css */
 
+/* Efectos para las Cards de Resumen */
+.summary-card {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: 100%;
+}
+
+.summary-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Efectos de Brillo (Glow) según el color del icono */
+.summary-card-blue:hover {
+  box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.3);
+}
+
+.summary-card-emerald:hover {
+  box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.3);
+}
+
+.summary-card-violet:hover {
+  box-shadow: 0 15px 30px -10px rgba(139, 92, 246, 0.3);
+}
+
+/* Estilos para el Gráfico */
 .recharts-pie-sector {
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
   transition: all 0.3s ease;
@@ -15,13 +39,59 @@
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-.legend-item-enter {
-  opacity: 0;
-  transform: translateY(10px);
+/* Colores de Borde por Categoría para el Historial */
+.history-card {
+  border-left-width: 5px !important;
+  transition: all 0.3s ease;
 }
 
-.legend-item-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms, transform 300ms;
+.card-cat-alimentacion {
+  border-left-color: #10b981 !important;
+}
+
+.card-cat-transporte {
+  border-left-color: #3b82f6 !important;
+}
+
+.card-cat-material-escolar {
+  border-left-color: #8b5cf6 !important;
+}
+
+.card-cat-libros {
+  border-left-color: #f59e0b !important;
+}
+
+.card-cat-otro {
+  border-left-color: #ec4899 !important;
+}
+
+.history-card:hover {
+  transform: translateX(5px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+}
+
+/* Sidebar Sticky */
+.sidebar-sticky {
+  position: sticky;
+  top: 2rem;
+  z-index: 10;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.sidebar-sticky::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari */
+}
+
+/* Asegurar que la gráfica no se corte */
+.recharts-responsive-container {
+  min-height: 150px;
+}
+
+/* Ajustes para tarjetas en la columna lateral */
+aside.sidebar-sticky {
+  box-shadow: -10px 0 20px -15px rgba(0, 0, 0, 0.05), inset 0 0 10px rgba(255, 255, 255, 0.5);
 }

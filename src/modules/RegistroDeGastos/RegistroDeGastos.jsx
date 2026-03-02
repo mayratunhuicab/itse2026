@@ -33,7 +33,7 @@ const CountUp = ({ value, duration = 800 }) => {
 
 const fields = [
   { name: 'concepto', label: '📝 Concepto', type: 'text', required: true },
-  { name: 'monto', label: '💰 Monto', type: 'number', required: true },
+  { name: 'monto', label: '💰 Monto', type: 'number', min: '1', required: true },
   { name: 'fecha', label: '📅 Fecha', type: 'date', required: true },
   { name: 'categoria', label: '🏷️ Categoría', type: 'select', options: ['Alimentación', 'Transporte', 'Material Escolar', 'Libros', 'Otro'], required: true },
 ];
@@ -145,7 +145,7 @@ function RegistroDeGastos() {
     const totalPeriodo = filteredItems.reduce((acc, curr) => acc + Number(curr.content.monto || 0), 0);
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="flex flex-col gap-6 mb-8">
         <div className="summary-card summary-card-blue bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-6 text-white shadow-xl shadow-blue-200 relative overflow-hidden group transition-all duration-300">
           <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform text-white">
             <TrendingUp size={120} />
@@ -251,6 +251,7 @@ function RegistroDeGastos() {
       customFilters={renderFilters()}
       filterFn={filterFn}
       useModal={true}
+      layout="sidebar"
       formColumns={2}
       gridColumns={2}
     />
