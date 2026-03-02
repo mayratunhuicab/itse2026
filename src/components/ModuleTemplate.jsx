@@ -110,7 +110,9 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
   const resetForm = () => {
     setShowForm(false);
     setEditingItem(null);
-    setFormData({});
+    const defaults = {};
+    fields.forEach(f => { if (f.defaultValue !== undefined) defaults[f.name] = f.defaultValue; });
+    setFormData(defaults);
   };
 
   const handleSubmit = (e) => {
@@ -163,7 +165,16 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
               <p className="text-slate-500 text-sm">Gestiona tus registros de {moduleName.toLowerCase()} de forma eficiente</p>
             </div>
             <button
-              onClick={() => { setShowForm(!showForm); setEditingItem(null); setErrorMsg(null); }}
+              onClick={() => {
+                if (!showForm) {
+                  const defaults = {};
+                  fields.forEach(f => { if (f.defaultValue !== undefined) defaults[f.name] = f.defaultValue; });
+                  setFormData(defaults);
+                }
+                setShowForm(!showForm);
+                setEditingItem(null);
+                setErrorMsg(null);
+              }}
               className={`${useModal ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-5 py-2.5 rounded-xl flex items-center shadow-lg transition-all transform hover:scale-105 active:scale-95`}
             >
               {showForm && !useModal ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}

@@ -34,7 +34,16 @@ const CountUp = ({ value, duration = 800 }) => {
 const fields = [
   { name: 'concepto', label: '📝 Concepto', type: 'text', required: true },
   { name: 'monto', label: '💰 Monto', type: 'number', min: '1', required: true },
-  { name: 'fecha', label: '📅 Fecha', type: 'date', required: true },
+  {
+    name: 'fecha',
+    label: '📅 Fecha',
+    type: 'date',
+    defaultValue: (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })(),
+    required: true
+  },
   { name: 'categoria', label: '🏷️ Categoría', type: 'select', options: ['Alimentación', 'Transporte', 'Material Escolar', 'Libros', 'Otro'], required: true },
 ];
 
