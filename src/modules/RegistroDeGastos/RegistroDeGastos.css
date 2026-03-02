@@ -12,15 +12,22 @@
 
 /* Efectos de Brillo (Glow) según el color del icono */
 .summary-card-blue:hover {
-  box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.4);
+  background: linear-gradient(135deg, #2563eb, #1e40af);
 }
 
 .summary-card-emerald:hover {
-  box-shadow: 0 15px 30px -10px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.2);
 }
 
 .summary-card-violet:hover {
-  box-shadow: 0 15px 30px -10px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.2);
+}
+
+/* Glassmorphism Refinements */
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
 
 /* Estilos para el Gráfico */
@@ -30,13 +37,14 @@
 }
 
 .recharts-pie-sector:hover {
-  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
-  transform: scale(1.02);
+  filter: drop-shadow(0 0 12px currentColor);
+  transform: scale(1.05);
   transform-origin: center;
 }
 
 .recharts-tooltip-wrapper {
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
 }
 
 /* Colores de Borde por Categoría para el Historial */
@@ -66,8 +74,19 @@
 }
 
 .history-card:hover {
-  transform: translateX(5px);
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+  transform: translateX(8px);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+/* Custom Scrollbar for Dark Mode */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Sidebar Sticky */

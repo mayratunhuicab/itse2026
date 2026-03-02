@@ -57,6 +57,29 @@ const CATEGORY_EMOJIS = {
   'Otro': '💰'
 };
 
+const darkTheme = {
+  container: 'bg-[#0f172a]',
+  card: 'bg-[#1e293b]/80 border-[#334155] backdrop-blur-xl',
+  itemCard: 'bg-[#1e293b]/50 border-[#334155] hover:border-blue-500/50 shadow-blue-900/10',
+  title: 'text-[#f8fafc]',
+  description: 'text-[#94a3b8]',
+  label: 'text-[#f8fafc]',
+  inputBg: 'bg-[#0f172a]/50',
+  inputBorder: 'border-[#334155]',
+  inputRing: 'focus:ring-blue-500/20',
+  inputFocusBorder: 'focus:border-blue-500/50',
+  inputText: 'text-[#f8fafc]',
+  link: 'text-blue-400 hover:text-blue-300',
+  modalCard: 'bg-[#0f172a] shadow-blue-900/40',
+  modalBorder: 'border-[#334155]',
+  modalHeader: 'bg-[#1e293b]',
+  modalHeaderBorder: 'border-[#334155]',
+  modalIconBg: 'bg-blue-500/20',
+  modalIconColor: 'text-blue-400',
+  sidebarBg: 'bg-[#1e293b]/30',
+  sidebarBorder: 'border-[#334155]/50'
+};
+
 function RegistroDeGastos() {
   const [timeFilter, setTimeFilter] = useState('Todos');
   const [categoryFilter, setCategoryFilter] = useState('Todas');
@@ -87,16 +110,16 @@ function RegistroDeGastos() {
   }, [searchQuery, categoryFilter, timeFilter]);
 
   const renderFilters = () => (
-    <div className="space-y-4 mb-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-top-4 duration-500">
+    <div className="space-y-4 mb-8 bg-[#1e293b]/80 p-6 rounded-3xl shadow-xl shadow-blue-900/10 border border-[#334155] backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div className="flex bg-slate-100 p-1 rounded-xl w-full lg:w-auto overflow-x-auto no-scrollbar">
+        <div className="flex bg-[#0f172a]/50 p-1.5 rounded-2xl w-full lg:w-auto overflow-x-auto no-scrollbar border border-[#334155]/30">
           {['Todos', 'Hoy', 'Esta Semana', 'Este Mes'].map((f) => (
             <button
               key={f}
               onClick={() => setTimeFilter(f)}
-              className={`flex-1 lg:flex-none px-5 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${timeFilter === f
-                ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200'
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+              className={`flex-1 lg:flex-none px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${timeFilter === f
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 ring-1 ring-blue-500/50'
+                : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5'
                 }`}
             >
               {f}
@@ -104,28 +127,28 @@ function RegistroDeGastos() {
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          <div className="relative flex-1 sm:w-72">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94a3b8] w-4 h-4" />
             <input
               type="text"
               placeholder="Buscar por concepto..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#0f172a]/50 border border-[#334155] rounded-2xl text-sm text-[#f8fafc] placeholder-[#94a3b8]/50 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 outline-none transition-all"
             />
           </div>
 
-          <div className="relative w-full sm:w-48">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <div className="relative w-full sm:w-56">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94a3b8] w-4 h-4" />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
+              className="w-full pl-12 pr-4 py-3 bg-[#0f172a]/50 border border-[#334155] rounded-2xl text-sm text-[#f8fafc] focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 outline-none transition-all appearance-none cursor-pointer"
             >
-              <option value="Todas">Todas las categorías</option>
+              <option value="Todas" className="bg-[#1e293b]">Todas las categorías</option>
               {fields.find(f => f.name === 'categoria').options.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt} className="bg-[#1e293b]">{opt}</option>
               ))}
             </select>
           </div>
@@ -134,7 +157,7 @@ function RegistroDeGastos() {
     </div>
   );
 
-  const renderSummary = (allItems) => {
+  const renderSummary = (allItems, theme = {}) => {
     const filteredItems = useMemo(() => allItems.filter(filterFn), [allItems, filterFn]);
 
     const chartData = useMemo(() => {
@@ -155,95 +178,102 @@ function RegistroDeGastos() {
 
     return (
       <div className="flex flex-col gap-6 mb-8">
-        <div className="summary-card summary-card-blue bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-6 text-white shadow-xl shadow-blue-200 relative overflow-hidden group transition-all duration-300">
+        <div className="summary-card summary-card-blue bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-6 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden group transition-all duration-300">
           <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform text-white">
             <TrendingUp size={120} />
           </div>
           <div className="relative z-10">
-            <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Inversión Hoy</p>
+            <p className="text-blue-100 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Inversión Hoy</p>
             <h3 className="text-3xl font-black text-white">
               <CountUp value={totalHoy} />
             </h3>
-            <div className="mt-4 flex items-center gap-2 text-[10px] bg-white/20 w-fit px-2 py-1 rounded-full backdrop-blur-sm">
+            <div className="mt-4 flex items-center gap-2 text-[10px] bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-md font-bold">
               <Clock size={12} />
               <span>Sincronizado</span>
             </div>
           </div>
         </div>
 
-        <div className="summary-card summary-card-emerald bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
-          <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shadow-inner">
+        <div className={`summary-card summary-card-emerald ${theme.card || 'bg-white border-slate-100'} rounded-3xl p-6 shadow-sm flex items-center gap-5 hover:shadow-md transition-all border`}>
+          <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center shadow-inner">
             <Wallet size={28} />
           </div>
           <div>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total {timeFilter === 'Todos' ? 'Acumulado' : timeFilter}</p>
-            <h3 className="text-2xl font-black text-slate-800">
+            <p className={`${theme.description || 'text-slate-400'} text-[10px] font-black uppercase tracking-widest`}>Total {timeFilter === 'Todos' ? 'Acumulado' : timeFilter}</p>
+            <h3 className={`text-2xl font-black ${theme.title || 'text-slate-800'}`}>
               <CountUp value={totalPeriodo} />
             </h3>
           </div>
         </div>
 
-        <div className="summary-card summary-card-violet bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
-          <div className="w-14 h-14 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center shadow-inner">
+        <div className={`summary-card summary-card-violet ${theme.card || 'bg-white border-slate-100'} rounded-3xl p-6 shadow-sm flex items-center gap-5 hover:shadow-md transition-all border`}>
+          <div className="w-14 h-14 bg-violet-500/10 text-violet-400 rounded-2xl flex items-center justify-center shadow-inner">
             <Tag size={28} />
           </div>
           <div className="overflow-hidden">
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Último Gasto</p>
-            <h3 className="text-xl font-bold text-slate-700 truncate">
+            <p className={`${theme.description || 'text-slate-400'} text-[10px] font-black uppercase tracking-widest`}>Último Gasto</p>
+            <h3 className={`text-xl font-black ${theme.title || 'text-slate-700'} truncate`}>
               {filteredItems[0]?.content.concepto || 'Sin registros'}
             </h3>
           </div>
         </div>
 
-        <div className="summary-card bg-white border border-slate-100 rounded-3xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col items-center">
-          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2 self-start flex items-center gap-2">
+        <div className={`summary-card ${theme.card || 'bg-white border-slate-100'} rounded-3xl p-5 shadow-sm hover:shadow-md transition-all border flex flex-col items-center`}>
+          <p className={`${theme.description || 'text-slate-400'} text-[10px] font-black uppercase tracking-widest mb-4 self-start flex items-center gap-3`}>
             <PieIcon size={14} className="text-blue-500" />
             Distribución
           </p>
-          <div className="w-full h-32">
+          <div className="w-full h-36">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={30}
-                  outerRadius={50}
-                  paddingAngle={5}
+                  innerRadius={35}
+                  outerRadius={55}
+                  paddingAngle={8}
                   dataKey="value"
                   animationBegin={0}
                   animationDuration={800}
                 >
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="hover:opacity-80 transition-opacity outline-none" />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="hover:opacity-80 transition-opacity outline-none cursor-pointer" />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value, name) => [`$${Number(value).toLocaleString('es-ES', { minimumFractionDigits: 2 })} ${CATEGORY_EMOJIS[name] || '💰'}`, 'Monto']}
-                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', padding: '12px' }}
+                  formatter={(value, name) => [`$${Number(value).toLocaleString('es-ES', { minimumFractionDigits: 2 })}`, `${CATEGORY_EMOJIS[name] || '💰'} ${name}`]}
+                  contentStyle={{
+                    borderRadius: '20px',
+                    border: '1px solid #334155',
+                    backgroundColor: '#1E293B',
+                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+                    padding: '16px',
+                    color: '#F8FAFC'
+                  }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
           {chartData.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-x-2 gap-y-1 mt-2 w-full">
+            <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 mt-4 w-full">
               {chartData.map((entry, index) => {
                 const color = COLORS[index % COLORS.length];
                 return (
-                  <div key={entry.name} className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-slate-100/50 transition-all hover:scale-105" style={{ backgroundColor: `${color}15` }}>
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }}></div>
-                    <span className="text-[9px] font-bold" style={{ color: color }}>
-                      {entry.name}: ${entry.value.toLocaleString('es-ES', { maximumFractionDigits: 0 })} {CATEGORY_EMOJIS[entry.name] || '💰'}
+                  <div key={entry.name} className="flex items-center gap-2 px-3 py-1 rounded-full border border-[#334155]/50 transition-all hover:scale-105 bg-white/5" style={{ borderColor: `${color}30` }}>
+                    <div className="w-2 h-2 rounded-full shadow-[0_0_8px] shadow-current" style={{ backgroundColor: color, color: color }}></div>
+                    <span className="text-[10px] font-bold" style={{ color: color }}>
+                      {entry.name}: ${entry.value.toLocaleString('es-ES', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-2 text-slate-300 gap-1 opacity-60">
-              <span className="text-xl">📭</span>
-              <p className="text-[8px] font-bold uppercase">Sin datos</p>
+            <div className={`flex flex-col items-center justify-center py-4 ${theme.description || 'text-slate-300'} gap-2 opacity-60`}>
+              <span className="text-2xl">📭</span>
+              <p className="text-[10px] font-black uppercase tracking-widest">Sin datos</p>
             </div>
           )}
         </div>
@@ -263,6 +293,7 @@ function RegistroDeGastos() {
       layout="sidebar"
       formColumns={2}
       gridColumns={2}
+      theme={darkTheme}
     />
   );
 }

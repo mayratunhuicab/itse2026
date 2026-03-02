@@ -3,7 +3,19 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { ArrowLeft, Plus, Edit, Trash2, Save, X, AlertCircle, CheckCircle } from 'lucide-react';
 
-function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, customFilters, filterFn, formColumns = 1, gridColumns = 1, useModal = false, layout = 'stacked' }) {
+function ModuleTemplate({
+  moduleName,
+  moduleOwner,
+  fields,
+  renderSummary,
+  customFilters,
+  filterFn,
+  formColumns = 1,
+  gridColumns = 1,
+  useModal = false,
+  layout = 'stacked',
+  theme = {}
+}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -150,19 +162,19 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${theme.container || 'bg-gray-50'}`}>
       <div className="container mx-auto px-4 py-8">
         {(renderSummary && layout !== 'sidebar') && renderSummary(items)}
 
         <div className="mb-6">
-          <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors">
+          <Link to="/" className={`inline-flex items-center ${theme.link || 'text-blue-600 hover:text-blue-800'} mb-4 transition-colors`}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al inicio
           </Link>
           <div className="flex justify-between items-center">
             <div className="space-y-1">
-              <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">{moduleName}</h1>
-              <p className="text-slate-500 text-sm">Gestiona tus registros de {moduleName.toLowerCase()} de forma eficiente</p>
+              <h1 className={`text-4xl font-extrabold ${theme.title || 'text-slate-800'} tracking-tight`}>{moduleName}</h1>
+              <p className={`${theme.description || 'text-slate-500'} text-sm`}>Gestiona tus registros de {moduleName.toLowerCase()} de forma eficiente</p>
             </div>
             <button
               onClick={() => {
@@ -218,17 +230,17 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                 className="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"
                 onClick={resetForm}
               />
-              <div className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 border border-slate-200">
-                <div className="bg-slate-50 px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+              <div className={`relative ${theme.modalCard || 'bg-white'} w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 border ${theme.modalBorder || 'border-slate-200'}`}>
+                <div className={`${theme.modalHeader || 'bg-slate-50'} px-8 py-6 border-b ${theme.modalHeaderBorder || 'border-slate-100'} flex justify-between items-center`}>
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl bg-emerald-100 text-emerald-600`}>
+                    <div className={`p-2 rounded-xl ${theme.modalIconBg || 'bg-emerald-100'} ${theme.modalIconColor || 'text-emerald-600'}`}>
                       {editingItem ? <Edit size={20} /> : <Plus size={20} />}
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-slate-800">
+                      <h2 className={`text-xl font-bold ${theme.title || 'text-slate-800'}`}>
                         {editingItem ? 'Editar' : 'Nuevo'} {moduleName.slice(0, -1)}
                       </h2>
-                      <p className="text-xs text-slate-500">Completa los campos para continuar</p>
+                      <p className={`text-xs ${theme.description || 'text-slate-500'}`}>Completa los campos para continuar</p>
                     </div>
                   </div>
                   <button
@@ -243,7 +255,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                   <div className={`grid grid-cols-1 md:grid-cols-${formColumns} gap-6 mb-8`}>
                     {fields.map((field) => (
                       <div key={field.name} className="flex flex-col space-y-2">
-                        <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <label className={`text-sm font-bold ${theme.label || 'text-slate-700'} flex items-center gap-2`}>
                           {field.label}
                           {field.required && <span className="text-emerald-500">*</span>}
                         </label>
@@ -251,7 +263,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                           <textarea
                             value={formData[field.name] || ''}
                             onChange={(e) => handleInputChange(field.name, e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500/30 transition-all bg-slate-50/50"
+                            className={`w-full px-4 py-3 border ${theme.inputBorder || 'border-slate-200'} rounded-xl focus:outline-none focus:ring-4 ${theme.inputRing || 'focus:ring-emerald-500/5'} ${theme.inputFocusBorder || 'focus:border-emerald-500/30'} transition-all ${theme.inputBg || 'bg-slate-50/50'} ${theme.inputText || ''}`}
                             rows="3"
                             required={field.required}
                           />
@@ -259,7 +271,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                           <select
                             value={formData[field.name] || ''}
                             onChange={(e) => handleInputChange(field.name, e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500/30 transition-all bg-slate-50/50 appearance-none"
+                            className={`w-full px-4 py-3 border ${theme.inputBorder || 'border-slate-200'} rounded-xl focus:outline-none focus:ring-4 ${theme.inputRing || 'focus:ring-emerald-500/5'} ${theme.inputFocusBorder || 'focus:border-emerald-500/30'} transition-all ${theme.inputBg || 'bg-slate-50/50'} ${theme.inputText || ''} appearance-none`}
                             required={field.required}
                           >
                             <option value="">Seleccionar...</option>
@@ -272,7 +284,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                             type={field.type || 'text'}
                             value={formData[field.name] || ''}
                             onChange={(e) => handleInputChange(field.name, e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500/30 transition-all bg-slate-50/50"
+                            className={`w-full px-4 py-3 border ${theme.inputBorder || 'border-slate-200'} rounded-xl focus:outline-none focus:ring-4 ${theme.inputRing || 'focus:ring-emerald-500/5'} ${theme.inputFocusBorder || 'focus:border-emerald-500/30'} transition-all ${theme.inputBg || 'bg-slate-50/50'} ${theme.inputText || ''}`}
                             required={field.required}
                             min={field.min}
                           />
@@ -388,12 +400,12 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
 
         <div className={layout === 'sidebar' ? 'flex flex-col lg:flex-row gap-8 items-start' : ''}>
           <div className={layout === 'sidebar' ? 'flex-1 w-full order-2 lg:order-1' : ''}>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold">Lista de {moduleName}</h2>
+            <div className={`rounded-2xl border ${theme.card || 'bg-white border-gray-100'} p-6 shadow-sm`}>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className={`text-2xl font-bold ${theme.title || 'text-slate-800'}`}>Lista de {moduleName}</h2>
                 <button
                   onClick={fetchData}
-                  className="text-sm text-blue-600 hover:underline"
+                  className={`text-sm ${theme.link || 'text-blue-600'} hover:underline font-bold`}
                 >
                   ↻ Recargar
                 </button>
@@ -416,14 +428,14 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                   {(filterFn ? items.filter(filterFn) : items).map((item) => {
                     const categoriaNormalizada = item.content.categoria?.toLowerCase().replace(/\s+/g, '-');
                     return (
-                      <div key={item.id} className={`history-card card-cat-${categoriaNormalizada} group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-50/50 transition-all duration-300`}>
+                      <div key={item.id} className={`history-card card-cat-${categoriaNormalizada} group relative ${theme.itemCard || 'bg-white border-gray-100'} border rounded-2xl p-6 hover:shadow-2xl transition-all duration-300`}>
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <div className="grid grid-cols-1 gap-3">
+                            <div className="grid grid-cols-1 gap-4">
                               {fields.map((field) => (
                                 <div key={field.name} className="flex flex-col">
-                                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-tighter">{field.label}</span>
-                                  <span className="text-gray-700 font-medium text-lg">
+                                  <span className={`text-[10px] font-bold ${theme.description || 'text-gray-400'} uppercase tracking-widest mb-1`}>{field.label}</span>
+                                  <span className={`${theme.itemText || 'text-gray-700'} font-bold text-lg`}>
                                     {field.type === 'number' ?
                                       `$${Number(item.content[field.name]).toLocaleString('es-ES', { minimumFractionDigits: 2 })}` :
                                       (item.content[field.name] || '—')
@@ -432,7 +444,7 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
                                 </div>
                               ))}
                             </div>
-                            <div className="text-[10px] text-gray-400 mt-6 flex items-center gap-1">
+                            <div className={`text-[10px] ${theme.description || 'text-gray-400'} mt-6 flex items-center gap-2 font-bold`}>
                               <CheckCircle className="w-3 h-3 text-green-500" />
                               Registrado el {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </div>
@@ -463,8 +475,8 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
           </div>
 
           {layout === 'sidebar' && renderSummary && (
-            <aside className="lg:w-[320px] w-full space-y-6 sidebar-sticky order-1 lg:order-2 bg-slate-50/50 p-4 rounded-3xl border border-slate-100/50 shadow-inner">
-              {renderSummary(items)}
+            <aside className={`lg:w-[320px] w-full space-y-6 sidebar-sticky order-1 lg:order-2 ${theme.sidebarBg || 'bg-slate-50/50'} p-4 rounded-3xl border ${theme.sidebarBorder || 'border-slate-100/50'} shadow-inner`}>
+              {renderSummary(items, theme)}
             </aside>
           )}
         </div>
