@@ -382,53 +382,60 @@ function ModuleTemplate({ moduleName, moduleOwner, fields, renderSummary, custom
             <div className="flex items-center gap-2 text-gray-500 py-4 text-center justify-center">
               Cargando datos...
             </div>
-          ) : items.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              No hay datos aún. Haz clic en "Agregar Nuevo" para empezar.
-            </p>
+          ) : (filterFn ? items.filter(filterFn) : items).length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-4 animate-in fade-in slide-in-from-bottom-4">
+              <span className="text-6xl filter grayscale opacity-50">📭</span>
+              <div className="text-center">
+                <p className="text-xl font-bold text-slate-600">Parece que aún no hay gastos hoy</p>
+                <p className="text-sm">Intenta cambiar el filtro o agregar un nuevo registro</p>
+              </div>
+            </div>
           ) : (
             <div className={`grid grid-cols-1 md:grid-cols-${gridColumns} gap-6`}>
-              {(filterFn ? items.filter(filterFn) : items).map((item) => (
-                <div key={item.id} className="group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-50/50 transition-all duration-300 border-l-4 border-l-blue-500">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="grid grid-cols-1 gap-3">
-                        {fields.map((field) => (
-                          <div key={field.name} className="flex flex-col">
-                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-tighter">{field.label}</span>
-                            <span className="text-gray-700 font-medium text-lg">
-                              {field.type === 'number' ?
-                                `$${Number(item.content[field.name]).toLocaleString('es-ES', { minimumFractionDigits: 2 })}` :
-                                (item.content[field.name] || '—')
-                              }
-                            </span>
-                          </div>
-                        ))}
+              {(filterFn ? items.filter(filterFn) : items).map((item) => {
+                const categoriaNormalizada = item.content.categoria?.toLowerCase().replace(/\s+/g, '-');
+                return (
+                  <div key={item.id} className={`history-card card-cat-${categoriaNormalizada} group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-50/50 transition-all duration-300`}>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="grid grid-cols-1 gap-3">
+                          {fields.map((field) => (
+                            <div key={field.name} className="flex flex-col">
+                              <span className="text-xs font-semibold text-gray-400 uppercase tracking-tighter">{field.label}</span>
+                              <span className="text-gray-700 font-medium text-lg">
+                                {field.type === 'number' ?
+                                  `$${Number(item.content[field.name]).toLocaleString('es-ES', { minimumFractionDigits: 2 })}` :
+                                  (item.content[field.name] || '—')
+                                }
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-[10px] text-gray-400 mt-6 flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          Registrado el {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </div>
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-6 flex items-center gap-1">
-                        <CheckCircle className="w-3 h-3 text-green-500" />
-                        Registrado el {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2.5 rounded-xl transition-all"
+                          title="Editar"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() => deleteData(item.id)}
+                          className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-all"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </div>
-                    </div>
-                    <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2.5 rounded-xl transition-all"
-                        title="Editar"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        onClick={() => deleteData(item.id)}
-                        className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-all"
-                        title="Eliminar"
-                      >
-                        <Trash2 size={18} />
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
