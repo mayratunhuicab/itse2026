@@ -62,20 +62,21 @@ const darkTheme = {
   card: 'bg-[#1e293b]/80 border-[#334155] backdrop-blur-xl',
   itemCard: 'bg-[#1e293b]/50 border-[#334155] hover:border-blue-500/50 shadow-blue-900/10',
   title: 'text-[#f8fafc]',
-  description: 'text-[#94a3b8]',
-  label: 'text-[#f8fafc]',
+  description: 'text-[#cbd5e1]',
+  label: 'text-[#cbd5e1]',
   inputBg: 'bg-[#0f172a]/50',
   inputBorder: 'border-[#334155]',
   inputRing: 'focus:ring-blue-500/20',
   inputFocusBorder: 'focus:border-blue-500/50',
-  inputText: 'text-[#f8fafc]',
+  inputText: 'text-[#ffffff]',
+  itemText: 'text-[#ffffff]',
   link: 'text-blue-400 hover:text-blue-300',
   modalCard: 'bg-[#0f172a] shadow-blue-900/40',
   modalBorder: 'border-[#334155]',
   modalHeader: 'bg-[#1e293b]',
   modalHeaderBorder: 'border-[#334155]',
   modalIconBg: 'bg-blue-500/20',
-  modalIconColor: 'text-blue-400',
+  modalIconColor: 'text-blue-200',
   sidebarBg: 'bg-[#1e293b]/30',
   sidebarBorder: 'border-[#334155]/50'
 };
@@ -119,7 +120,7 @@ function RegistroDeGastos() {
               onClick={() => setTimeFilter(f)}
               className={`flex-1 lg:flex-none px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${timeFilter === f
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 ring-1 ring-blue-500/50'
-                : 'text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/5'
+                : 'text-[#cbd5e1] hover:text-[#ffffff] hover:bg-white/5'
                 }`}
             >
               {f}
@@ -129,22 +130,22 @@ function RegistroDeGastos() {
 
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
           <div className="relative flex-1 sm:w-72">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94a3b8] w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#cbd5e1] w-4 h-4" />
             <input
               type="text"
               placeholder="Buscar por concepto..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0f172a]/50 border border-[#334155] rounded-2xl text-sm text-[#f8fafc] placeholder-[#94a3b8]/50 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 outline-none transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#0f172a]/50 border border-[#334155] rounded-2xl text-sm text-[#ffffff] placeholder-[#94a3b8] focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 outline-none transition-all"
             />
           </div>
 
           <div className="relative w-full sm:w-56">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94a3b8] w-4 h-4" />
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-[#cbd5e1] w-4 h-4" />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0f172a]/50 border border-[#334155] rounded-2xl text-sm text-[#f8fafc] focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 outline-none transition-all appearance-none cursor-pointer"
+              className="w-full pl-12 pr-4 py-3 bg-[#0f172a]/50 border border-[#334155] rounded-2xl text-sm text-[#ffffff] focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500/50 outline-none transition-all appearance-none cursor-pointer"
             >
               <option value="Todas" className="bg-[#1e293b]">Todas las categorías</option>
               {fields.find(f => f.name === 'categoria').options.map(opt => (
@@ -183,36 +184,36 @@ function RegistroDeGastos() {
             <TrendingUp size={120} />
           </div>
           <div className="relative z-10">
-            <p className="text-blue-100 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Inversión Hoy</p>
-            <h3 className="text-3xl font-black text-white">
+            <p className="text-white/80 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Inversión Hoy</p>
+            <h3 className="text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
               <CountUp value={totalHoy} />
             </h3>
-            <div className="mt-4 flex items-center gap-2 text-[10px] bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-md font-bold">
-              <Clock size={12} />
+            <div className="mt-4 flex items-center gap-2 text-[10px] bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-md font-bold border border-white/10 shadow-sm">
+              <Clock size={12} className="drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
               <span>Sincronizado</span>
             </div>
           </div>
         </div>
 
         <div className={`summary-card summary-card-emerald ${theme.card || 'bg-white border-slate-100'} rounded-3xl p-6 shadow-sm flex items-center gap-5 hover:shadow-md transition-all border`}>
-          <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center shadow-inner">
-            <Wallet size={28} />
+          <div className="w-14 h-14 bg-emerald-500/10 text-emerald-300 rounded-2xl flex items-center justify-center shadow-inner border border-emerald-500/20">
+            <Wallet size={28} className="drop-shadow-[0_0_8px_rgba(110,231,183,0.5)]" />
           </div>
           <div>
             <p className={`${theme.description || 'text-slate-400'} text-[10px] font-black uppercase tracking-widest`}>Total {timeFilter === 'Todos' ? 'Acumulado' : timeFilter}</p>
-            <h3 className={`text-2xl font-black ${theme.title || 'text-slate-800'}`}>
+            <h3 className={`text-2xl font-black ${theme.title || 'text-slate-800'} drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]`}>
               <CountUp value={totalPeriodo} />
             </h3>
           </div>
         </div>
 
         <div className={`summary-card summary-card-violet ${theme.card || 'bg-white border-slate-100'} rounded-3xl p-6 shadow-sm flex items-center gap-5 hover:shadow-md transition-all border`}>
-          <div className="w-14 h-14 bg-violet-500/10 text-violet-400 rounded-2xl flex items-center justify-center shadow-inner">
-            <Tag size={28} />
+          <div className="w-14 h-14 bg-violet-500/10 text-violet-300 rounded-2xl flex items-center justify-center shadow-inner border border-violet-500/20">
+            <Tag size={28} className="drop-shadow-[0_0_8px_rgba(196,181,253,0.5)]" />
           </div>
           <div className="overflow-hidden">
             <p className={`${theme.description || 'text-slate-400'} text-[10px] font-black uppercase tracking-widest`}>Último Gasto</p>
-            <h3 className={`text-xl font-black ${theme.title || 'text-slate-700'} truncate`}>
+            <h3 className={`text-xl font-black ${theme.title || 'text-slate-700'} truncate drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]`}>
               {filteredItems[0]?.content.concepto || 'Sin registros'}
             </h3>
           </div>
@@ -261,9 +262,9 @@ function RegistroDeGastos() {
               {chartData.map((entry, index) => {
                 const color = COLORS[index % COLORS.length];
                 return (
-                  <div key={entry.name} className="flex items-center gap-2 px-3 py-1 rounded-full border border-[#334155]/50 transition-all hover:scale-105 bg-white/5" style={{ borderColor: `${color}30` }}>
-                    <div className="w-2 h-2 rounded-full shadow-[0_0_8px] shadow-current" style={{ backgroundColor: color, color: color }}></div>
-                    <span className="text-[10px] font-bold" style={{ color: color }}>
+                  <div key={entry.name} className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 transition-all hover:scale-105 bg-white/5 backdrop-blur-sm" style={{ borderColor: `${color}40`, boxShadow: `0 0 10px ${color}15` }}>
+                    <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px] shadow-current" style={{ backgroundColor: color, color: color }}></div>
+                    <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: color, textShadow: `0 0 8px ${color}40` }}>
                       {entry.name}: ${entry.value.toLocaleString('es-ES', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
