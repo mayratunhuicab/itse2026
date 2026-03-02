@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { TrendingUp, Wallet, Tag, Clock, Search, Filter, PieChart as PieIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import ModuleTemplate from '../../components/ModuleTemplate';
+import './RegistroDeGastos.css';
 
 const fields = [
   { name: 'concepto', label: '📝 Concepto', type: 'text', required: true },
@@ -10,15 +11,23 @@ const fields = [
   { name: 'categoria', label: '🏷️ Categoría', type: 'select', options: ['Alimentación', 'Transporte', 'Material Escolar', 'Libros', 'Otro'], required: true },
 ];
 
-const COLORS = ['#6366f1', '#10b981', '#8b5cf6', '#3b82f6', '#f59e0b', '#ec4899'];
+const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
+
+const CATEGORY_EMOJIS = {
+  'Alimentación': '🍔',
+  'Transporte': '🚗',
+  'Material Escolar': '📚',
+  'Libros': '📖',
+  'Otro': '💰'
+};
 
 function RegistroDeGastos() {
   const [timeFilter, setTimeFilter] = useState('Todos');
   const [categoryFilter, setCategoryFilter] = useState('Todas');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Lógica de filtrado que se pasará al ModuleTemplate
-  const filterFn = (item) => {
+  // Lógica de filtrado centralizada
+  const filterFn = useMemo(() => (item) => {
     // 1. Filtro de Búsqueda (por concepto)
     const matchesSearch = item.content.concepto?.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -41,7 +50,7 @@ function RegistroDeGastos() {
     }
 
     return matchesSearch && matchesCategory && matchesTime;
-  };
+  }, [searchQuery, categoryFilter, timeFilter]);
 
   const renderFilters = () => (
     <div className="space-y-4 mb-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -96,10 +105,13 @@ function RegistroDeGastos() {
     </div>
   );
 
-  const renderSummary = (items) => {
+  const renderSummary = (allItems) => {
+    // Filtrar los items para el resumen también, asegurando sincronía con la lista
+    const filteredItems = useMemo(() => allItems.filter(filterFn), [allItems, filterFn]);
+
     // Procesamiento de datos para la gráfica
     const chartData = useMemo(() => {
-      const groups = items.reduce((acc, item) => {
+      const groups = filteredItems.reduce((acc, item) => {
         const cat = item.content.categoria || 'Otro';
         const monto = Number(item.content.monto || 0);
         acc[cat] = (acc[cat] || 0) + monto;
@@ -107,12 +119,12 @@ function RegistroDeGastos() {
       }, {});
 
       return Object.entries(groups).map(([name, value]) => ({ name, value }));
-    }, [items]);
+    }, [filteredItems]);
 
-    const totalHoy = items
+    const totalHoy = allItems
       .filter(i => new Date(i.created_at).toDateString() === new Date().toDateString())
       .reduce((acc, curr) => acc + Number(curr.content.monto || 0), 0);
-    const totalMes = items.reduce((acc, curr) => acc + Number(curr.content.monto || 0), 0);
+    const totalPeriodo = filteredItems.reduce((acc, curr) => acc + Number(curr.content.monto || 0), 0);
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -135,8 +147,8 @@ function RegistroDeGastos() {
             <Wallet size={28} />
           </div>
           <div>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total Acumulado</p>
-            <h3 className="text-2xl font-black text-slate-800">${totalMes.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</h3>
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total {timeFilter === 'Todos' ? 'Acumulado' : timeFilter}</p>
+            <h3 className="text-2xl font-black text-slate-800">${totalPeriodo.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</h3>
           </div>
         </div>
 
@@ -147,7 +159,7 @@ function RegistroDeGastos() {
           <div className="overflow-hidden">
             <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Último Gasto</p>
             <h3 className="text-xl font-bold text-slate-700 truncate">
-              {items[0]?.content.concepto || 'Sin registros'}
+              {filteredItems[0]?.content.concepto || 'Sin registros'}
             </h3>
           </div>
         </div>
@@ -168,24 +180,29 @@ function RegistroDeGastos() {
                   outerRadius={50}
                   paddingAngle={5}
                   dataKey="value"
+                  animationBegin={0}
+                  animationDuration={800}
                 >
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="hover:opacity-80 transition-opacity outline-none" />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => `$${Number(value).toLocaleString()}`}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  formatter={(value, name) => [`$${Number(value).toLocaleString('es-ES', { minimumFractionDigits: 2 })} ${CATEGORY_EMOJIS[name] || '💰'}`, 'Monto']}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', padding: '12px' }}
+                  itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#1e293b' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
           {chartData.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-1">
-              {chartData.slice(0, 3).map((entry, index) => (
-                <div key={entry.name} className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                  <span className="text-[9px] font-medium text-slate-500">{entry.name}</span>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-2 w-full px-2">
+              {chartData.map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-full border border-slate-100/50">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <span className="text-[10px] font-bold text-slate-600">
+                    {entry.name}: ${entry.value.toLocaleString('es-ES', { maximumFractionDigits: 0 })} {CATEGORY_EMOJIS[entry.name] || '💰'}
+                  </span>
                 </div>
               ))}
             </div>

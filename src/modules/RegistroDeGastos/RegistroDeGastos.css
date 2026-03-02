@@ -1,0 +1,27 @@
+/* RegistroDeGastos.css */
+
+.recharts-pie-sector {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+  transition: all 0.3s ease;
+}
+
+.recharts-pie-sector:hover {
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
+  transform: scale(1.02);
+  transform-origin: center;
+}
+
+.recharts-tooltip-wrapper {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.legend-item-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.legend-item-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
