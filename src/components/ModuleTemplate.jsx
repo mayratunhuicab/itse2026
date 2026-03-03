@@ -14,8 +14,7 @@ function ModuleTemplate({
   gridColumns = 1,
   useModal = false,
   layout = 'stacked',
-  theme = {},
-  locale = 'es-ES'
+  theme = {}
 }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -438,7 +437,7 @@ function ModuleTemplate({
                                   <span className={`text-[10px] font-bold ${theme.description || 'text-gray-400'} uppercase tracking-widest mb-1`}>{field.label}</span>
                                   <span className={`${theme.itemText || 'text-gray-700'} font-bold text-lg`}>
                                     {field.type === 'number' ?
-                                      `$${Number(item.content[field.name]).toLocaleString(locale, { minimumFractionDigits: 2 })}` :
+                                      `$${Number(item.content[field.name]).toLocaleString('es-ES', { minimumFractionDigits: 2 })}` :
                                       (item.content[field.name] || '—')
                                     }
                                   </span>
@@ -447,7 +446,7 @@ function ModuleTemplate({
                             </div>
                             <div className={`text-[10px] ${theme.description || 'text-gray-400'} mt-6 flex items-center gap-2 font-bold`}>
                               <CheckCircle className="w-3 h-3 text-green-500" />
-                              Registrado el {new Date(item.created_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
+                              Registrado el {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </div>
                           </div>
                           <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
